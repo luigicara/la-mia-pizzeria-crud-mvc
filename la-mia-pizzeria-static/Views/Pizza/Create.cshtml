@@ -1,0 +1,40 @@
+﻿@model Pizza
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = $"Aggiungi Pizza";
+}
+
+<div class="container">
+    <form asp-controller="Pizza" asp-action="Create" enctype="multipart/form-data" method="post">
+        @Html.AntiForgeryToken()
+        <div class="mb-3">
+            <strong>Nome:</strong>
+            <input asp-for="Name" class="d-block w-100" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Ingredienti:</strong>
+            <input asp-for="Ingredients" class="d-block w-100" />
+            <span asp-validation-for="Ingredients" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Immagine:</strong>
+            <input type="file" name="img" class="d-block w-100" />
+            <span asp-validation-for="ImgPath" type="file" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Prezzo:</strong>
+            <input asp-for="Price" class="d-block w-100" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="text-end">
+            <input type="submit" class="btn btn-small btn-info" value="Salva">
+        </div>
+    </form>
+</div>
+ 
