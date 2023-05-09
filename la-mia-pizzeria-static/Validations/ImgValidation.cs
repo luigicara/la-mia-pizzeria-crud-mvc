@@ -6,6 +6,9 @@ namespace la_mia_pizzeria_static.Validations
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
+            if (value == null)
+                return new ValidationResult("");
+
             var imgext = Path.GetExtension((string)value).ToLower();
 
             if (imgext != ".jpg" && imgext != ".png")

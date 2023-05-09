@@ -1,4 +1,5 @@
 using la_mia_pizzeria_static.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace la_mia_pizzeria_static
 {
@@ -16,6 +17,10 @@ namespace la_mia_pizzeria_static
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<PizzaContext>(
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("MainConnection")
+                   )
+                );
 
             var app = builder.Build();
 

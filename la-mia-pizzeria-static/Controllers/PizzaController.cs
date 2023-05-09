@@ -11,107 +11,114 @@ namespace la_mia_pizzeria_static.Controllers
 {
     public class PizzaController : Controller
     {
-
         private IWebHostEnvironment Environment;
+        private PizzaContext DB;
 
-        public PizzaController(IWebHostEnvironment _environment)
+        public PizzaController(IWebHostEnvironment _environment, PizzaContext db)
         {
             Environment = _environment;
+            DB = db;
         }
         public IActionResult Index()
         {
-            using (PizzaContext db = new PizzaContext())
-            {
-                List<Pizza> pizze = db.Pizzas.ToList<Pizza>();
+            List<Pizza> pizze = DB.Pizzas.ToList<Pizza>();
 
-                return View(pizze);
-            }
+            return View(pizze);
         }
 
         public IActionResult Details(int Id)
         {
-            using (PizzaContext db = new PizzaContext())
+            Pizza pizza;
+            try
             {
-                Pizza pizza;
-                try
-                {
-                    pizza = db.Pizzas.First(p => p.PizzaId == Id);
+                pizza = DB.Pizzas.First(p => p.PizzaId == Id);
 
-                    return View(pizza);  
+                return View(pizza);  
 
-                }catch (Exception)
-                { 
-                    return View("NotFound", Id);    
-                }
+            }catch (Exception)
+            { 
+                return View("NotFound", Id);    
             }
+            
         }
 
         public IActionResult Create()
         {
-            return View();
+            List<Category> categories = DB.Categories.ToList();
+
+            PizzaFormModel model = new PizzaFormModel();
+            model.Pizza = new Pizza();
+            model.Categories = categories;
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Pizza data, IFormFile img)
+        public async Task<IActionResult> Create(PizzaFormModel data, IFormFile img)
         {
-            data.ImgPath = Path.Combine(Environment.WebRootPath, "img", img.FileName);
+            data.Pizza.ImgPath = Path.Combine(Environment.WebRootPath, "img", img.FileName);
 
-            ModelState.ClearValidationState("ImgPath");
+            ModelState.ClearValidationState("Pizza.ImgPath");
 
             TryValidateModel(data);
 
             if (!ModelState.IsValid)
             {
+                List<Category> category = DB.Categories.ToList();
+                data.Categories = category;
+                data.Pizza = new Pizza();
                 return View("Create", data);
             }
 
-            using (var stream = System.IO.File.Create(data.ImgPath))
+            using (var stream = System.IO.File.Create(data.Pizza.ImgPath))
             {
                 await img.CopyToAsync(stream);
             }
 
-            using (PizzaContext db = new PizzaContext())
-            {
-                Pizza pizzaToCreate = new Pizza();
-                pizzaToCreate.Name = data.Name;
-                pizzaToCreate.Ingredients = data.Ingredients;
-                pizzaToCreate.ImgPath = "~/" + Path.GetRelativePath(Environment.WebRootPath, data.ImgPath);
-                pizzaToCreate.Price = data.Price;
-                db.Pizzas.Add(pizzaToCreate);
-                db.SaveChanges();
+            Pizza pizzaToCreate = new Pizza();
+            pizzaToCreate.Name = data.Pizza.Name;
+            pizzaToCreate.Ingredients = data.Pizza.Ingredients;
+            pizzaToCreate.ImgPath = "~/" + Path.GetRelativePath(Environment.WebRootPath, data.Pizza.ImgPath);
+            pizzaToCreate.Price = data.Pizza.Price;
+            pizzaToCreate.CategoryId = data.Pizza.CategoryId;
+            DB.Pizzas.Add(pizzaToCreate);
+            DB.SaveChanges();
 
-                return RedirectToAction("Index");
-            }
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public IActionResult Edit(int Id)
         {
-            using (PizzaContext db = new PizzaContext())
+
+            Pizza? pizza = DB.Pizzas.FirstOrDefault(p => p.PizzaId == Id);
+            List<Category> categories = DB.Categories.ToList();
+
+            PizzaFormModel model = new PizzaFormModel();
+            model.Pizza = pizza;
+            model.Categories = categories;
+
+            if (pizza == null)
+                return View("NotFound", Id);
+            else
             {
-                Pizza? pizza = db.Pizzas.FirstOrDefault(p => p.PizzaId == Id);
-                if (pizza == null)
-                    return View("NotFound", Id);
-                else
-                {
-                    return View(pizza);
-                }
+                return View(model);
             }
+            
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Pizza data, IFormFile img)
+        public async Task<IActionResult> Edit(PizzaFormModel data, IFormFile img)
         {
             if (img != null)
             {
-                var imgToDelete = Path.GetFullPath(Path.Combine(Environment.WebRootPath, data.ImgPath.Substring(2)));
+                var imgToDelete = Path.GetFullPath(Path.Combine(Environment.WebRootPath, data.Pizza.ImgPath.Substring(2)));
                 System.IO.File.Delete(imgToDelete);
 
-                data.ImgPath = Path.Combine(Environment.WebRootPath, "img", img.FileName);
+                data.Pizza.ImgPath = Path.Combine(Environment.WebRootPath, "img", img.FileName);
 
-                ModelState.ClearValidationState("ImgPath");
+                ModelState.ClearValidationState("Pizza.ImgPath");
 
                 TryValidateModel(data);
             } else
@@ -126,50 +133,48 @@ namespace la_mia_pizzeria_static.Controllers
 
             if (img != null)
             {
-                using (var stream = System.IO.File.Create(data.ImgPath))
+                using (var stream = System.IO.File.Create(data.Pizza.ImgPath))
                 {
                     await img.CopyToAsync(stream);
                 }
             }
 
-            using (PizzaContext db = new PizzaContext())
-            {
-                Pizza pizzaToEdit = db.Pizzas.First(p => p.PizzaId == data.PizzaId);
-                pizzaToEdit.Name = data.Name;
-                pizzaToEdit.Ingredients = data.Ingredients;
-                pizzaToEdit.ImgPath = img == null ? data.ImgPath : "~/" + Path.GetRelativePath(Environment.WebRootPath, data.ImgPath);
-                pizzaToEdit.Price = data.Price;
-     
-                db.SaveChanges();
+            Pizza pizzaToEdit = DB.Pizzas.First(p => p.PizzaId == data.Pizza.PizzaId);
+            pizzaToEdit.Name = data.Pizza.Name;
+            pizzaToEdit.Ingredients = data.Pizza.Ingredients;
+            pizzaToEdit.ImgPath = img == null ? data.Pizza.ImgPath : "~/" + Path.GetRelativePath(Environment.WebRootPath, data.Pizza.ImgPath);
+            pizzaToEdit.Price = data.Pizza.Price;
+            pizzaToEdit.CategoryId = data.Pizza.CategoryId;
 
-                return RedirectToAction("Index");
-            }
+            DB.SaveChanges();
+
+            return RedirectToAction("Index");
+            
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
-            using (PizzaContext db = new PizzaContext())
+     
+            Pizza? pizzaToDelete = DB.Pizzas.Where(pizza => pizza.PizzaId == id).FirstOrDefault();
+
+            if (pizzaToDelete != null)
             {
-                Pizza? pizzaToDelete = db.Pizzas.Where(pizza => pizza.PizzaId == id).FirstOrDefault();
+                var imgToDelete = Path.GetFullPath(Path.Combine(Environment.WebRootPath, pizzaToDelete.ImgPath.Substring(2)));
+                System.IO.File.Delete(imgToDelete);
 
-                if (pizzaToDelete != null)
-                {
-                    var imgToDelete = Path.GetFullPath(Path.Combine(Environment.WebRootPath, pizzaToDelete.ImgPath.Substring(2)));
-                    System.IO.File.Delete(imgToDelete);
+                DB.Pizzas.Remove(pizzaToDelete);
 
-                    db.Pizzas.Remove(pizzaToDelete);
+                DB.SaveChanges();
 
-                    db.SaveChanges();
-
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    return NotFound();
-                }
+                return RedirectToAction("Index");
             }
+            else
+            {
+                return NotFound();
+            }
+            
         }
     }
 }

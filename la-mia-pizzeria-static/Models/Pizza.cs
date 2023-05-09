@@ -16,8 +16,12 @@ namespace la_mia_pizzeria_static.Models
         [ImgValidation]
         public string ImgPath { get; set; }
         [Required(ErrorMessage = "Il campo è obbligatorio")]
-        [Range(18, int.MaxValue, ErrorMessage = "Il prezzo dev'essere positivo")]
+        [Range(0, int.MaxValue, ErrorMessage = "Il prezzo dev'essere positivo")]
         public decimal Price { get; set; }
+
+
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
 
         public static void Seed()
         {
@@ -49,6 +53,17 @@ namespace la_mia_pizzeria_static.Models
                 };
 
                 db.AddRange(seed);
+                db.SaveChanges();
+
+                var seed2 = new Category[]
+                {
+                    new Category 
+                    {
+                        Nome = "PizzaBuona"
+                    }
+                };
+
+                db.AddRange(seed2);
                 db.SaveChanges();
             }
         }
