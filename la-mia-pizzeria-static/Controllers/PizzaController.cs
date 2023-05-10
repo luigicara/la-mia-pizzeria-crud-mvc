@@ -128,6 +128,7 @@ namespace la_mia_pizzeria_static.Controllers
 
             if (!ModelState.IsValid)
             {
+                data.Categories = DB.Categories.ToList();
                 return View("Edit", data);
             }
 
