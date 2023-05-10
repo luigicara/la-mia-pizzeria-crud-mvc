@@ -1,5 +1,6 @@
 using la_mia_pizzeria_static.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace la_mia_pizzeria_static
 {
@@ -9,6 +10,9 @@ namespace la_mia_pizzeria_static
         {
             using (PizzaContext db = new PizzaContext())
             {
+                if (!db.Categories.Any())
+                    Category.Seed();
+
                 if (!db.Pizzas.Any())
                     Pizza.Seed();
             }

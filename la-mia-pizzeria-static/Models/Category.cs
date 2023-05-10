@@ -11,6 +11,24 @@ namespace la_mia_pizzeria_static.Models
 
         public List<Pizza> Pizze { get; set; }
 
+        public static void Seed()
+        {
+            using (PizzaContext db = new PizzaContext())
+            {
+
+                var seed = new Category[]
+                {
+                    new Category
+                    {
+                        Nome = "PizzaBuona"
+                    }
+                };
+
+                db.AddRange(seed);
+                db.SaveChanges();
+            }
+
+        }
     }
 }
 

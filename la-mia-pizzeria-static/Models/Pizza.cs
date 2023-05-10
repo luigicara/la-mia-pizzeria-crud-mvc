@@ -6,65 +6,99 @@ namespace la_mia_pizzeria_static.Models
     public class Pizza
     {
         public int PizzaId { get; set; }
+
         [Required(ErrorMessage = "Il campo è obbligatorio")]
         [StringLength(50, ErrorMessage = "Il nome non può avere più di 50 caratteri")]
         public string Name { get; set; }
-        [Required(ErrorMessage = "Il campo è obbligatorio")]
-        [StringLength(250, ErrorMessage = "Il campo non può avere più di 250 caratteri")]
-        public string Ingredients { get; set; }
+      
         [Required(ErrorMessage = "Il campo è obbligatorio")]
         [ImgValidation]
         public string ImgPath { get; set; }
+
         [Required(ErrorMessage = "Il campo è obbligatorio")]
         [Range(0, int.MaxValue, ErrorMessage = "Il prezzo dev'essere positivo")]
         public decimal Price { get; set; }
 
+        public List<Ingredient>? Ingredients { get; set; }
 
         public int? CategoryId { get; set; }
+
         public Category? Category { get; set; }
 
         public static void Seed()
         {
             using (PizzaContext db = new PizzaContext())
             {
-                var seed = new Pizza[]
+
+                var pizza = new Pizza()
                 {
-                    new Pizza
+                    Name = "Marinara",
+                    ImgPath = "~/img/marinara.jpg",
+                    Price = 4.00m,
+                    CategoryId = 1,
+                    Ingredients = new List<Ingredient>
                     {
-                        Name = "Marinara",
-                        Ingredients = "Pomodoro, origano, aglio, olio",
-                        ImgPath = "~/img/marinara.jpg",
-                        Price = 4.00m
-                    },
-                    new Pizza
-                    {
-                        Name = "Margherita",
-                        Ingredients = "Pomodoro, mozzarella",
-                        ImgPath = "~/img/margherita.jpg",
-                        Price = 4.00m
-                    },
-                    new Pizza
-                    {
-                        Name = "Capricciosa",
-                        Ingredients = "Pomodoro, mozzarella, funghi, olive, capperi",
-                        ImgPath = "~/img/capricciosa.jpg",
-                        Price = 4.00m
+                        new Ingredient()
+                        {
+                            Name = "Pomodoro"
+                        },
+                        new Ingredient()
+                        {
+                            Name = "Origano"
+                        }
                     }
                 };
 
-                db.AddRange(seed);
+                db.Add(pizza);
                 db.SaveChanges();
 
-                var seed2 = new Category[]
+                pizza = new Pizza()
                 {
-                    new Category 
+                    Name = "Margherita",
+                    ImgPath = "~/img/margherita.jpg",
+                    Price = 4.00m,
+                    CategoryId = 1,
+                    Ingredients = new List<Ingredient>
                     {
-                        Nome = "PizzaBuona"
+                        db.Ingredients.Where(c => c.Name == "Pomodoro").FirstOrDefault(),
+                        new Ingredient()
+                        {
+                            Name = "Mozzarella"
+                        }
                     }
                 };
 
-                db.AddRange(seed2);
+                db.Add(pizza);
                 db.SaveChanges();
+
+                pizza = new Pizza()
+                {
+                    Name = "Capricciosa",
+                    ImgPath = "~/img/capricciosa.jpg",
+                    Price = 4.00m,
+                    CategoryId = 1,
+                    Ingredients = new List<Ingredient>
+                    {
+                        db.Ingredients.Where(c => c.Name == "Pomodoro").FirstOrDefault(),
+                        db.Ingredients.Where(c => c.Name == "Mozzarella").FirstOrDefault(),
+                        new Ingredient()
+                        {
+                            Name = "Prosciutto Cotto"
+                        },
+                        new Ingredient()
+                        {
+                            Name = "Funghi"
+                        },
+                        new Ingredient()
+                        {
+                            Name = "Olive"
+                        }
+                    }
+                };
+
+                db.Add(pizza);
+                db.SaveChanges();
+
             }
         }
     }

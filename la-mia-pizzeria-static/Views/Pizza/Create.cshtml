@@ -15,12 +15,6 @@
         </div>
 
         <div class="mb-3">
-            <strong>Ingredienti:</strong>
-            <input asp-for="Pizza.Ingredients" class="d-block w-100" />
-            <span asp-validation-for="Pizza.Ingredients" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
             <strong>Immagine:</strong>
             <input type="file" name="img" class="d-block w-100" />
             <span asp-validation-for="Pizza.ImgPath" type="file" class="text-danger"></span>
@@ -30,10 +24,6 @@
             <strong>Prezzo:</strong>
             <input asp-for="Pizza.Price" class="d-block w-100" />
             <span asp-validation-for="Pizza.Price" class="text-danger"></span>
-        </div>
-
-        <div class="text-end">
-            <input type="submit" class="btn btn-small btn-info" value="Salva">
         </div>
 
         <div>
@@ -52,6 +42,20 @@
                     }
                 }
             </select>
+        </div>
+
+        <div class="mb-3">
+            <strong>Ingredients:</strong>
+            <select asp-for="SelectedIngredients"
+                    multiple="multiple"
+                    size="10"
+                    class="form-control mb-2 mr-sm-2 ml-sm-3 leftList"
+                    asp-items="@Model.Ingredients">
+            </select>
+        </div>
+
+        <div class="text-end">
+            <input type="submit" class="btn btn-small btn-info" value="Salva">
         </div>
     </form>
 </div>

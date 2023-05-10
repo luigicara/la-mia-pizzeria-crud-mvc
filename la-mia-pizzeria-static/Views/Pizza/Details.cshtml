@@ -19,7 +19,15 @@
         </p>
 
         <p>
-            <strong>Ingredienti:</strong> @Model.Ingredients
+            <strong>Ingredienti:</strong> 
+            @{var last = Model.Ingredients.Last();}
+            @foreach(Ingredient ingredient in Model.Ingredients) 
+            { 
+                if(ingredient.Equals(last))
+                    @ingredient.Name
+                else
+                    @(ingredient.Name + ", ") 
+            }
         </p>
 
         <p>
