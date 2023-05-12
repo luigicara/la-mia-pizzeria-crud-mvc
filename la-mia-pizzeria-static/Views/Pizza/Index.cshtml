@@ -7,7 +7,10 @@
 <div class="container">
     <div class="row mt-3">
         <div class="col-5"></div>
-        <a class="btn btn-primary col-2 justify-content-center" href="@Url.Action("Create", "Pizza")">Aggiungi Pizza</a>
+        @if (User.IsInRole("ADMIN"))
+        {
+            <a class="btn btn-primary col-2 justify-content-center" href="@Url.Action("Create", "Pizza")">Aggiungi Pizza</a>
+        }
         <table class="table">
             <thead>
                 <tr>
@@ -28,13 +31,16 @@
                     <td>€ @(pizza.Price.ToString())</td>
                     <td>
                         <a href="@Url.Action("Details", "Pizza", new {Id=@pizza.PizzaId})">Details</a>
-                        <a class="btn btn-primary" href="@Url.Action("Edit", "Pizza", new {Id=@pizza.PizzaId})"><i class="fa-solid fa-pen-to-square"></i></a>
-                        <form asp-controller="Pizza" asp-action="Delete" asp-route-id="@pizza.PizzaId" method="post">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('sei sicuro?')">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </form>
+                        @if (User.IsInRole("ADMIN"))
+                        {   
+                            <a class="btn btn-primary" href="@Url.Action("Edit", "Pizza", new {Id=@pizza.PizzaId})"><i class="fa-solid fa-pen-to-square"></i></a>
+                            <form asp-controller="Pizza" asp-action="Delete" asp-route-id="@pizza.PizzaId" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('sei sicuro?')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        }
                     </td>
                 </tr>
                     

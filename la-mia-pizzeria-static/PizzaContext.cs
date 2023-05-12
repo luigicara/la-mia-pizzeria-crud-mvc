@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using la_mia_pizzeria_static.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace la_mia_pizzeria_static
 {
-    public class PizzaContext : DbContext
+    public class PizzaContext : IdentityDbContext<IdentityUser>
     {
         public DbSet<Pizza> Pizzas { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -15,7 +16,7 @@ namespace la_mia_pizzeria_static
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=db_pizzas;Integrated Security=True;TrustServerCertificate=true").LogTo(s => Debug.WriteLine(s));
+            optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=db_pizzas;Integrated Security=True;TrustServerCertificate=true");
         }
 
         public PizzaContext() : base() { }
